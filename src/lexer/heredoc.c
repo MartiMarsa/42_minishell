@@ -12,29 +12,28 @@
 
 #include "../../includes/minishell.h"
 
-
-/* This function returns the point where the keyword starts if the heredoc 
+/* This function returns the point where the keyword starts if the heredoc
 sign "<<" is valid */
 int	wheredoc(char *str, int i)
 {
 	while (str[i])
 	{
-		while (str[i] != '<')
+		while (str[i] && str[i] != '<')
 			i++;
 		if (!str[i] || !str[i + 1] || !str[i + 2])
 			return (-1);
 		if (str[i + 1] != '<')
 		{
 			i++;
-			continue;
+			continue ;
 		}
 		else if (str[i + 2] == '<')
-			return -1;
+			return (-1);
 		i += 2;
 		while (str[i] && str[i] == ' ')
 			i++;
 		if (str[i] && check_chr(str[i]))
-			break;
+			break ;
 		else
 			return (-1);
 	}
@@ -49,16 +48,16 @@ char	*keyword_hd(t_fd *new, char *in, int *i, char q)
 	int		j;
 
 	j = 0;
-	while (in[j] && in[j + 1] && check_chr(in[0]) != 2
-		&& check_chr(in[j + 1]) != 2 && check_chr(in[j + 1]))
+	while (in[j] && in[j + 1] && check_chr(in[0]) != 2 && \
+		check_chr(in[j + 1]) != 2 && check_chr(in[j + 1]))
 		j++;
 	if (check_chr(in[0]) == 2)
 		j = word_in_quotes(in, &q, -1);
 	while (in[j] && in[j + 1] && check_chr(in[j + 1]) == 2)
 		j = word_in_quotes(in, &q, j);
 	str = ft_substr(in, 0, j + 1);
-	 if (str)
-	 	str = trim_quotes(str, ' ', ft_strlen(str), -1);
+	if (str)
+		str = trim_quotes(str, ' ', ft_strlen(str), -1);
 	if (!str)
 		return (NULL);
 	if (q == '\'' || q == '\"')
@@ -67,12 +66,12 @@ char	*keyword_hd(t_fd *new, char *in, int *i, char q)
 	return (str);
 }
 
-/* 
+/*
 This function creates a pipe to save the heredoc content in it.
-The pipe is used as a buffer with a file descriptor to read from. 
+The pipe is used as a buffer with a file descriptor to read from.
 Then it opens a readline, we can fill it from standart input.
-It compares each line with the key word and if it's not the keyword 
-it saves the line in the buffer. 
+It compares each line with the key word and if it's not the keyword
+it saves the line in the buffer.
 1. return (-1) - if pipe() error occures
 2. return (fd) - a file descriptor to read the content of the heredoc
 */
@@ -80,15 +79,16 @@ int	save_hd(t_toolkit *tool, char *key, char *str, int token)
 {
 	int	hd[2];
 
-	if (pipe(hd) < 0)
+	init_signals(NORM);
+	if (pipe(hd) < -1)
 		return (-1);
 	while (1)
 	{
 		str = readline("> ");
 		if (!str)
 			return (hd_close(hd, 0));
-		else if (!ft_strncmp(str, key, ft_longer(str, key)) && \
-				(ft_strncmp(str, "\n", 1)))
+		else if (!ft_strncmp(str, key, ft_longer(str, key)) && (ft_strncmp(str,
+					"\n", 1)))
 			break ;
 		else if (!ft_strncmp(str, "\n", 1) && (*key == '\0'))
 			break ;
@@ -130,17 +130,17 @@ int	heredoc(t_toolkit *tool, char *input, int i)
 			return (0);
 		input = input + i;
 		new = malloc(sizeof(t_fd));
-//		if (!new)
-//			return (err_break(tool, "heredoc", NULL, 12)); // TO - DO error function
+		if (!new)
+			return (err_break(tool, "heredoc", NULL, 12));
 		new->next = NULL;
 		new->token = HEREDOC;
 		fd_add(&(tool->hd_lst), new);
 		new->str = keyword_hd(new, input, &i, ' ');
-//		if (!new->str)
-//			return (err_break(tool, "heredoc", NULL, 12)); 	// TO - DO error function
+		if (!new->str)
+			return (err_break(tool, "heredoc", NULL, 12));
 		new->fd = save_hd(tool, new->str, NULL, new->token);
-//		if (new->fd < 0)
-//			return (err_break(tool, "heredoc",  NULL, -(new->fd))); // TO - DO error function
+		if (new->fd < 0)
+			return (err_break(tool, "heredoc", NULL, -(new->fd)));
 		i = 0;
 	}
 	return (0);

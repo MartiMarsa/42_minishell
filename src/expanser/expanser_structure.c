@@ -32,15 +32,15 @@ void	exp_clean(t_exp **exp)
 {
 	if (!(*exp))
 		return ;
-	exp_nano_clean(*exp);
+	exp_spc_clean(*exp);
 	(*exp)->str = NULL;
 	(*exp)->new = NULL;
 	*exp = ft_memdel(*exp);
 }
 
 /*
-    Initializes the expansion environment, preparing necessary structures
-    and variables.
+	Initializes the expansion environment, preparing necessary structures
+	and variables.
 */
 int	exp_init(t_toolkit *tool)
 {
@@ -52,7 +52,7 @@ int	exp_init(t_toolkit *tool)
 	tool->exp->str = NULL;
 	tool->exp->var = NULL;
 	tool->exp->val = NULL;
-	tool->exp->alloc = NULL;
+	tool->exp->alloc = 0;
 	tool->exp->k = -1;
 	tool->exp->j = -1;
 	return (0);
@@ -65,7 +65,7 @@ int	exp_init(t_toolkit *tool)
 int	exp_start(t_toolkit *tool, char *str, int token)
 {
 	tool->exp->str = str;
-	tool->exp->k = new_len(tool, str, token);
+	tool->exp->k = new_len(tool, str, token, ft_strlen(str));
 	if (tool->exp->k < 0)
 		return (1);
 	tool->exp->new = malloc(tool->exp->k + 1);
@@ -89,11 +89,11 @@ char	*exp_fd(t_toolkit *tool, char *str, t_fd *new)
 {
 	char	*s;
 
-	if (tool->lex_lst->token == WORD
-		&& check_exp(str, tool->lex_lst->token, -1) < 0)
+	if (tool->lex_lst->token == WORD && check_exp(str, tool->lex_lst->token,
+			-1) < 0)
 		return (trim_quotes(str, ' ', ft_strlen(str), -1));
-	else if (new->token == HEREDOC
-		|| check_exp(str, tool->lex_lst->token, -1) < 0)
+	else if (new->token == HEREDOC || check_exp(str, tool->lex_lst->token,
+			-1) < 0)
 		return (str);
 	if (tool->exp)
 		exp_clean(&tool->exp);

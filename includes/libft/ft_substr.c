@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include "libft.h"
 
+/*
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	char	*substr;
@@ -37,6 +38,32 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 		substr[i] = *s;
 		i++;
 		s++;
+	}
+	substr[i] = '\0';
+	return (substr);
+}*/
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	char	*substr;
+	size_t	len_str;
+	size_t	i;
+
+	if (!s)
+		return (0);
+	len_str = ft_strlen(s);
+	if (start > len_str)
+		return (ft_strdup(""));
+	if ((start + len) > len_str)
+		len = len_str - start;
+	substr = malloc(sizeof(char) * (len + 1));
+	if (!substr)
+		return (NULL);
+	i = 0;
+	while (i < len && s[i])
+	{
+		substr[i] = s[i + start];
+		i++;
 	}
 	substr[i] = '\0';
 	return (substr);

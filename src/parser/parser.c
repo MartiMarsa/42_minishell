@@ -13,7 +13,7 @@
 #include "../../includes/minishell.h"
 
 /*
-	This function traverses a linked list of tokens and returns the next token 
+	This function traverses a linked list of tokens and returns the next token
 	that has a value between 1 and 3 (inclusive), which means that it could be
 	a word or a string between simple or double quotes.
 */
@@ -36,8 +36,8 @@ t_lexer	*next_word(t_lexer *temp)
 }
 
 /*
-    This function counts the number of command tokens (values between 1 and 3)
-    in a linked list until a pipe is encountered.
+	This function counts the number of command tokens (values between 1 and 3)
+	in a linked list until a pipe is encountered.
 */
 int	count_cmd(t_lexer *temp)
 {
@@ -68,7 +68,7 @@ int	parse_cmd(t_pipe *new, t_lexer *temp, t_toolkit *t, int j)
 	int	i;
 
 	i = count_cmd(temp);
-	new->cmd = (char **) malloc(sizeof(char *) * (i + 1));
+	new->cmd = (char **)malloc(sizeof(char *) * (i + 1));
 	if (!new->cmd)
 		return (1);
 	while (t->lex_lst && t->lex_lst->token < 4)
@@ -107,7 +107,7 @@ int	parse_redir(t_pipe *new, t_lexer *lex, t_fd *hd, t_toolkit *t)
 	if (!fd_new)
 		return (1);
 	fd_add(&(new->fd_lst), fd_new);
-	if ((lex->token > 3 && lex->token < 6) || lex->token == OUTFILEAPP)
+	if ((lex->token > 3 && lex->token < 6) || lex->token == 7)
 		check = fd_init(fd_new, t, -2);
 	else if (lex->token == HEREDOC)
 	{
@@ -121,7 +121,8 @@ int	parse_redir(t_pipe *new, t_lexer *lex, t_fd *hd, t_toolkit *t)
 
 /*
 	This function reads a list of tokens and organize them into a linked list
-	of t_pipe structures, where each t_pipe structure contains commands and their
+	of t_pipe structures,
+		where each t_pipe structure contains commands and their
 	associated file descriptors.
 */
 int	parser(t_toolkit *t, t_lexer *lex, t_fd *hd, t_pipe *new)
@@ -137,8 +138,8 @@ int	parser(t_toolkit *t, t_lexer *lex, t_fd *hd, t_pipe *new)
 		{
 			if (t->lex_lst->token > 3 && t->lex_lst->token < 8)
 				t->check = parse_redir(new, t->lex_lst, t->hd_lst, t);
-			else if (t->lex_lst->token > 0 && t->lex_lst->token < 4 && \
-			!new->cmd)
+			else if (t->lex_lst->token > 0 && t->lex_lst->token < 4
+				&& !new->cmd)
 				t->check = parse_cmd(new, t->lex_lst, t, 0);
 			else
 				t->lex_lst = t->lex_lst->next;

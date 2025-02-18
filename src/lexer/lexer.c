@@ -29,10 +29,10 @@ t_lexer	*rd_space(char *input, int *i)
 	new[0] = ' ';
 	new[1] = '\0';
 	*i += j;
-	return (lex_new(new, SPACE));
+	return (lex_new(new, MYSPACE));
 }
 
-/* This function serves to parse input strings, 
+/* This function serves to parse input strings,
 extracting individual words, including those within quotes */
 
 t_lexer	*rd_word(char *input, int *i, char q)
@@ -61,7 +61,7 @@ a LEX_NODE with the defining characteristic */
 
 t_lexer	*rd_symbol(t_toolkit *tool, char *input, int *i)
 {
-	int			j;
+	int	j;
 
 	j = 0;
 	if (input[j] == '<' && input[j + 1] != '<')
@@ -86,8 +86,8 @@ t_lexer	*rd_symbol(t_toolkit *tool, char *input, int *i)
 	return (NULL);
 }
 
-/* This function parses an input string, identifying words within 
-single or double quotes. It extracts the word within the quotes and 
+/* This function parses an input string, identifying words within
+single or double quotes. It extracts the word within the quotes and
 creates a corresponding lexical token, distinguishing between single
 and double quotes. */
 
@@ -95,31 +95,35 @@ t_lexer	*rd_in_quotes(char *input, int *i)
 {
 	char	*new;
 	int		j;
+	int		len;
 
 	new = NULL;
 	j = 0;
-	while (input[j] && input[j + 1] && input[j + 1] != input[0])
+	len = ft_strlen(input);
+	while (j + 1 < len && input[j + 1] && input[j + 1] != input[0])
 		j++;
-	if (input[j + 2] && check_chr(input[j + 2]))
+	if (j + 2 < len && check_chr(input[j] != 2) && check_chr(input[j + 2]))
 		return (rd_word(input, i, ' '));
 	new = ft_substr(input, 1, j);
 	*i += j;
+	if (j == 0)
+		*i += 1;
 	if (input[0] == 39)
 		return (lex_new(new, SIMPLEQ));
-	else if (input[0] == 34)
+	else
 		return (lex_new(new, DOUBLEQ));
-	return (NULL);
 }
 
-int lexer(t_toolkit *tool, char	*input)
+int	lexer(t_toolkit *tool, char *input)
 {
 	t_lexer	*new;
 	int		i;
+	int		len;
 
 	new = NULL;
 	i = -1;
-
-	while (input[++i])
+	len = ft_strlen(input);
+	while (i < len && input[++i])
 	{
 		if (input[i] == ' ')
 			new = rd_space(&input[i], &i);
@@ -130,7 +134,7 @@ int lexer(t_toolkit *tool, char	*input)
 		else
 			new = rd_word(&input[i], &i, ' ');
 		if (!new)
-			return (EXIT_FAILURE); // TO - DO error function
+			return (err_break(tool, "malloc", NULL, 12));
 		else
 			lex_add(&(tool->lex_lst), new);
 	}
